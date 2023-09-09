@@ -414,27 +414,22 @@ def get_todays_matchups(api_key: str, driver: webdriver):
     # Sometimes, the results of yesterday's games are listed first, then todays games are listed
     # Other times, yesterday's games are not listed, or when the playoffs approach, future games are listed
     # We will check the date for the first div, if it is not todays date, then we will look for the next div
-    NO_GAME_TEXT = "ScheduleView_noGamesText__sTqZw"
     CLASS_GAMES_PER_DAY = "ScheduleDay_sdGames__NGdO5" # the div containing all games for a day
     CLASS_DAY = "ScheduleDay_sdDay__3s2Xt" # the heading with the date for the games (e.g. "Wednesday, February 1")
-    div_no_games = source.find('h2', {'class':NO_GAME_TEXT}) 
     div_games = source.find('div', {'class':CLASS_GAMES_PER_DAY}) # first div may or may not be yesterday's games or even future games when playoffs approach
     div_game_day = source.find('h4', {'class':CLASS_DAY})
-    today = datetime.today().strftime('%A, %B %d')[:3] # e.g. "Wednesday, February 1" -> "Wed" for convenience with dealing with leading zeros
+    today = datetime.today().strftime('%A, %B %d')#[:3] # e.g. "Wednesday, February 1" -> "Wed" for convenience with dealing with leading zeros
     todays_games = None
     
-    if div_no_games is None:
-        while div_games:
-            print(div_game_day.text[:3]) 
-            if today == div_game_day.text[:3]:  
-                todays_games = div_games
-                break
-            else:
-                # move to next div
-                div_games = div_games.find_next('div', {'class':CLASS_GAMES_PER_DAY}) 
-                div_game_day = div_game_day.find_next('h4', {'class':CLASS_DAY})
-    else:
-        print("No games today")
+    while div_games:
+        print(div_game_day.text) 
+        if today == div_game_day.text:  
+            todays_games = div_games
+            break
+        else:
+            # move to next div
+            div_games = div_games.find_next('div', {'class':CLASS_GAMES_PER_DAY}) 
+            div_game_day = div_game_day.find_next('h4', {'class':CLASS_DAY})
 
     if todays_games is None:
         # no games today
