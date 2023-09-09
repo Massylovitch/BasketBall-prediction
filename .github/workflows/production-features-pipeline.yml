@@ -31,5 +31,4 @@ jobs:
           PYTHONUNBUFFERED: "1"
           
         run:
-          # jupyter nbconvert --to notebook --execute notebooks/09_production_features_pipeline.ipynb
-          jupyter nbconvert --to html notebooks/09_production_features_pipeline.ipynb --stdout --ExecutePreprocessor.kernel_name=python --ExecutePreprocessor.enabled=True
+          jupyter nbconvert --to notebook --execute notebooks/09_production_features_pipeline.ipynb --stdout
