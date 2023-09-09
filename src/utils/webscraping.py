@@ -422,7 +422,10 @@ def get_todays_matchups(api_key: str, driver: webdriver):
     todays_games = None
     
     while div_games:
-        print(div_game_day.text) 
+        print(div_game_day.text)
+        game_day = div_game_day.text
+        game_day = game_day.split(" ")
+        game_day = (" ").join(game_day[:3])
         if today == div_game_day.text:  
             todays_games = div_games
             break
