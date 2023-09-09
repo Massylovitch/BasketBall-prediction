@@ -31,7 +31,7 @@ jobs:
           PYTHONUNBUFFERED: "1"
           
         run:
-          jupyter nbconvert --to notebook --execute notebooks/09_production_features_pipeline.ipynb
+          jupyter nbconvert --to notebook --execute notebooks/09_production_features_pipeline.ipynb  --output notebook_executed
 
       - name: commit updated notebook
         uses: EndBug/add-and-commit@v7
