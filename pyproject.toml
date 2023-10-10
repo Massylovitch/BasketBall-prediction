@@ -9,9 +9,9 @@ packages = [{include = "basketball_prediction"}]
 [tool.poetry.dependencies]
 python = "^3.8, <3.9"
 neptune = "1.4.1"
-hopsworks = "3.0.4"
+hopsworks = "3.2"
 streamlit = "^1.25.0"
-pandas = "^2.0.3"
+pandas = "^1.5"
 ipykernel = "^6.25.1"
 matplotlib = "^3.7.2"
 xgboost = "1.6"

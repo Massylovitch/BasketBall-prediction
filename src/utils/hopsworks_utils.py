@@ -90,11 +90,17 @@ def create_train_test_data(HOPSWORKS_API_KEY:str, STARTDATE:str, DAYS:int):
 
     query = rolling_stats_fg.select_all()
 
-    feature_view = fs.create_feature_view(
-        name = 'rolling_stats_fv',
-        version = 2,
-        query = query
-    )
+    try:
+        feature_view = fs.create_feature_view(
+            name = 'rolling_stats_fv',
+            version = 2,
+            query = query
+        )
+    except :
+        feature_view = fs.get_feature_view(
+            name='rolling_stats_fv',
+            version=2
+        )
 
     # calculate the start and end dates for the train and test data and then retrieve the data from the feature view
     # the train data will be all data except the last DAYS
@@ -103,39 +109,48 @@ def create_train_test_data(HOPSWORKS_API_KEY:str, STARTDATE:str, DAYS:int):
     TODAY = datetime.now()
     LASTYEAR = (TODAY - timedelta(days=DAYS)).strftime('%Y-%m-%d')
     TODAY = TODAY.strftime('%Y-%m-%d') 
-
-    td_train, td_job = feature_view.create_training_data(
-            start_time=STARTDATE,
-            end_time=LASTYEAR,    
+    
+    # create a train-test split dataset
+    td_data, td_job = feature_view.create_training_data(
+            # start_time=STARTDATE,
+            # end_time=LASTYEAR,    
             description='All data except last ' + str(DAYS) + ' days',
             data_format="csv",
             coalesce=True,
-            write_options={'wait_for_job': False},
+            write_options={'wait_for_job': True},
         )
 
-    td_test, td_job = feature_view.create_training_data(
-            start_time=LASTYEAR,
-            end_time=TODAY,    
-            description='Last ' + str(DAYS) + ' days',
-            data_format="csv",
-            coalesce=True,
-            write_options={'wait_for_job': False},
-        )
+    # td_test, td_job = feature_view.create_training_data(
+    #         start_time=LASTYEAR,
+    #         end_time=TODAY,    
+    #         description='Last ' + str(DAYS) + ' days',
+    #         data_format="csv",
+    #         coalesce=True,
+    #         write_options={'wait_for_job': True},
+    #     )
 
-    train = feature_view.get_training_data(td_train)[0]
-    test = feature_view.get_training_data(td_test)[0]
+    # train = feature_view.get_training_data(td_train)[0]
+    # test = feature_view.get_training_data(td_test)[0]
+    data = feature_view.get_training_data(td_data)[0]
 
     # hopsworks converts all feature names to lower-case, while the original feature names use mixed-case
     # converting these back to original format is needed for optimal code re-useability.
     
-    train = convert_feature_names(train)
-    test = convert_feature_names(test)
+    # train = convert_feature_names(train)
+    # test = convert_feature_names(test)
+    data = convert_feature_names(data)
 
     # fix date format (truncate to YYYY-MM-DD)
-    train["GAME_DATE_EST"] = train["GAME_DATE_EST"].str[:10]
-    test["GAME_DATE_EST"] = test["GAME_DATE_EST"].str[:10]
+    # train["GAME_DATE_EST"] = train["GAME_DATE_EST"].str[:10]
+    # test["GAME_DATE_EST"] = test["GAME_DATE_EST"].str[:10]
+    data["GAME_DATE_EST"] = data["GAME_DATE_EST"].str[:10]
 
     # feature view is no longer needed, so delete it
     feature_view.delete()
+
+    SPLIT = data.iloc[-data.shape[0]//15]['GAME_DATE_EST'] # split the data in half and find the date in the middle
+
+    train = data[data['GAME_DATE_EST'] < SPLIT]
+    test = data[data['GAME_DATE_EST'] >= SPLIT]
 
     return train, test

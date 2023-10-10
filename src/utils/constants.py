@@ -39,7 +39,7 @@ NBA_COM_DROP_COLUMNS = ['Team', 'MIN', 'FGM', 'FGA', '3PM', '3PA', 'FTM', 'FTA',
 
 ############ HOPSWORKS CONSTANTS ############
 
-FEATURE_GROUP_VERSION = 1 #version of feature group to use
+FEATURE_GROUP_VERSION = 2 #version of feature group to use
 
 
 
