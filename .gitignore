@@ -92,7 +92,7 @@ target/
 .neptune
 
 # Artifacts
-models/
+/models/
 *.json
 *.pkl
 
