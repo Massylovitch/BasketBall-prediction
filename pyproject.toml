@@ -7,9 +7,9 @@ readme = "README.md"
 packages = [{include = "basketball_prediction"}]
 
 [tool.poetry.dependencies]
-python = "^3.8, <3.9"
+python = "3.10.12"
 neptune = "1.4.1"
-hopsworks = "3.2"
+hopsworks = "^3.4"
 streamlit = "^1.25.0"
 pandas = "^1.5"
 ipykernel = "^6.25.1"

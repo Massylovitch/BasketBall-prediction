@@ -113,7 +113,8 @@ def add_date_features(df: pd.DataFrame)-> pd.DataFrame:
     """
 
     df['MONTH'] = df['GAME_DATE_EST'].dt.month
-    
+    df['MONTH'] = df['MONTH'].astype("int8")
+
     return df
 
 
