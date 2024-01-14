@@ -28,6 +28,7 @@ jobs:
         env: 
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
           NEPTUNE_API_TOKEN: ${{ secrets.NEPTUNE_API_TOKEN }}
+          SCRAPINGANT_API_KEY: ${{ secrets.SCRAPINGANT_API_KEY }}
           PYTHONUNBUFFERED: "1"
           
         run:
