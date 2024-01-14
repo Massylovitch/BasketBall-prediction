@@ -93,7 +93,6 @@ data/
 
 # Artifacts
 /models/
-*.json
 *.pkl
 
 visualization/
