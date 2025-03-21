@@ -67,6 +67,7 @@ def activate_web_driver() -> webdriver:
     chrome_options = Options()
     for option in options:
         chrome_options.add_argument(option)
+    chrome_options.binary_location = "/usr/bin/google-chrome"
 
     # driver = webdriver.Chrome(service=service, options=chrome_options)
     driver = webdriver.Chrome(
