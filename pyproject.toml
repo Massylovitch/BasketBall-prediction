@@ -30,6 +30,7 @@ scipy = "1.11.4"
 neptune-optuna = "^1.4.1"
 hopsworks = {extras = ["python"], version = "^4.1.8"}
 nbformat = "^5.10.4"
+streamlit = "^1.43.2"
 
 
 [build-system]
