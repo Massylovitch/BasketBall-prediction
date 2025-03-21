@@ -94,5 +94,9 @@ data/
 # Artifacts
 /models/
 *.pkl
+*.json
 
 visualization/
+bin/
+*.txt
+*.deb

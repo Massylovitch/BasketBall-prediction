@@ -111,7 +111,7 @@ def create_train_test_data(HOPSWORKS_API_KEY:str, STARTDATE:str, DAYS:int):
     TODAY = TODAY.strftime('%Y-%m-%d') 
     
     # create a train-test split dataset
-    td_data, td_job = feature_view.create_training_data(
+    td_train, _ = feature_view.create_training_data(
             # start_time=STARTDATE,
             # end_time=LASTYEAR,    
             description='All data except last ' + str(DAYS) + ' days',
@@ -120,37 +120,29 @@ def create_train_test_data(HOPSWORKS_API_KEY:str, STARTDATE:str, DAYS:int):
             write_options={'wait_for_job': True},
         )
 
-    # td_test, td_job = feature_view.create_training_data(
-    #         start_time=LASTYEAR,
-    #         end_time=TODAY,    
-    #         description='Last ' + str(DAYS) + ' days',
-    #         data_format="csv",
-    #         coalesce=True,
-    #         write_options={'wait_for_job': True},
-    #     )
+    td_test, _ = feature_view.create_training_data(
+            start_time=LASTYEAR,
+            end_time=TODAY,    
+            description='Last ' + str(DAYS) + ' days',
+            data_format="csv",
+            coalesce=True,
+            write_options={'wait_for_job': True},
+        )
 
-    # train = feature_view.get_training_data(td_train)[0]
-    # test = feature_view.get_training_data(td_test)[0]
-    data = feature_view.get_training_data(td_data)[0]
+    train = feature_view.get_training_data(td_train)[0]
+    test = feature_view.get_training_data(td_test)[0]
 
     # hopsworks converts all feature names to lower-case, while the original feature names use mixed-case
     # converting these back to original format is needed for optimal code re-useability.
     
-    # train = convert_feature_names(train)
-    # test = convert_feature_names(test)
-    data = convert_feature_names(data)
+    train = convert_feature_names(train)
+    test = convert_feature_names(test)
 
     # fix date format (truncate to YYYY-MM-DD)
-    # train["GAME_DATE_EST"] = train["GAME_DATE_EST"].str[:10]
-    # test["GAME_DATE_EST"] = test["GAME_DATE_EST"].str[:10]
-    data["GAME_DATE_EST"] = data["GAME_DATE_EST"].str[:10]
+    train["GAME_DATE_EST"] = train["GAME_DATE_EST"].str[:10]
+    test["GAME_DATE_EST"] = test["GAME_DATE_EST"].str[:10]
 
     # feature view is no longer needed, so delete it
     feature_view.delete()
-
-    SPLIT = data.iloc[-data.shape[0]//15]['GAME_DATE_EST'] # split the data in half and find the date in the middle
-
-    train = data[data['GAME_DATE_EST'] < SPLIT]
-    test = data[data['GAME_DATE_EST'] >= SPLIT]
 
     return train, test
