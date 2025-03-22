@@ -233,20 +233,16 @@ def scrape_to_dataframe(
 
     # try 2 times to load page correctly; scrapingant can fail sometimes on it first try
     for i in range(1, 2):
-        if api_key == "":  # if no api key, then use selenium
-            driver.get(nba_url)
-            time.sleep(10)
-            source = soup(driver.page_source, "html.parser")
-        else:  # if api key, then use scrapingant
-            client = ScrapingAntClient(token=api_key)
-            result = client.general_request(nba_url)
-            source = soup(result.content, "html.parser")
-
+        driver.get(nba_url)
+        time.sleep(10)
+        source = soup(driver.page_source, "html.parser")
+        print("FIRST ", source)
         # the data table is the key dynamic element that may fail to load
         CLASS_ID_TABLE = (
             "Crom_table__p1iZz"  # determined by visual inspection of page source code
         )
         data_table = source.find("table", {"class": CLASS_ID_TABLE})
+        print(CLASS_ID_TABLE+" ", data_table)
 
         if data_table is None:
             time.sleep(10)
@@ -261,6 +257,7 @@ def scrape_to_dataframe(
     # check for more than one page
     CLASS_ID_PAGINATION = "Pagination_pageDropdown__KgjBU"  # determined by visual inspection of page source code
     pagination = source.find("div", {"class": CLASS_ID_PAGINATION})
+    print(CLASS_ID_PAGINATION+" ", pagination)
 
     if api_key == "":  # if using selenium, then check for multiple pages
         if pagination is not None:
@@ -274,7 +271,7 @@ def scrape_to_dataframe(
                 + CLASS_ID_DROPDOWN
                 + "']",
             )
-
+            
             page_dropdown.send_keys("ALL")  # show all pages
             # page_dropdown.click() doesn't work in headless mode
             time.sleep(3)
@@ -287,7 +284,7 @@ def scrape_to_dataframe(
             source = soup(driver.page_source, "html.parser")
             data_table = source.find("table", {"class": CLASS_ID_TABLE})
 
-    print(source)
+            print("FOURTH ",source)
 
     # convert the html table to a dataframe
     dfs = pd.read_html(str(data_table), header=0)
