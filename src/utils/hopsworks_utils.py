@@ -112,8 +112,8 @@ def create_train_test_data(HOPSWORKS_API_KEY:str, STARTDATE:str, DAYS:int):
     
     # create a train-test split dataset
     td_train, _ = feature_view.create_training_data(
-            # start_time=STARTDATE,
-            # end_time=LASTYEAR,    
+            start_time=STARTDATE,
+            end_time=LASTYEAR,    
             description='All data except last ' + str(DAYS) + ' days',
             data_format="csv",
             coalesce=True,

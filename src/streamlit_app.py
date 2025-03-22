@@ -174,7 +174,7 @@ df_todays_matches = df_current_season[df_current_season["pts_home"] == 0]
 df_current_season = df_current_season[df_current_season["pts_home"] != 0]
 
 # select last 25 games from the season
-df_current_season = df_current_season.sort_values(by=["game_id"], ascending=False).head(
+df_current_season = df_current_season.sort_values(by=["game_date_est"], ascending=False).head(
     25
 )
 
