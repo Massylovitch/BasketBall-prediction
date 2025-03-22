@@ -6,9 +6,16 @@ from scrapingant_client import ScrapingAntClient
 
 # if using selenium and chrome, import these
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromiumService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+from webdriver_manager.core.os_manager import ChromeType
+from webdriver_manager.chrome import ChromeDriverManager
+
+# if using selenium and firefox, import these
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
+
 
 from bs4 import BeautifulSoup as soup
 
@@ -39,23 +46,36 @@ def activate_web_driver() -> webdriver:
     """
 
     # options for selenium webdrivers, used to assist headless scraping. Still ran into issues, so I used scrapingant instead when running from github actions
-    options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--disable-extensions')
-    options.add_argument('--start-maximized')
-    # Memory optimization
-    options.add_argument('--disk-cache-size=1')
-    options.add_argument('--media-cache-size=1')
-    options.add_argument('--incognito')
-    options.add_argument('--remote-debugging-port=9222')
-    options.add_argument('--aggressive-cache-discard')
+    options = [
+        "--headless",
+        "--window-size=1920,1200",
+        "--start-maximized",
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--ignore-certificate-errors",
+        "--disable-extensions",
+        "--disable-popup-blocking",
+        "--disable-notifications",
+        "--remote-debugging-port=9222",  # https://stackoverflow.com/questions/56637973/how-to-fix-selenium-devtoolsactiveport-file-doesnt-exist-exception-in-python
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
+        "--disable-blink-features=AutomationControlled",
+    ]
 
-    service = Service('/usr/local/bin/chromedriver')
-        
-    driver = webdriver.Chrome(service=service, options=options)
+    # service = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()), options=options)
+
+    chrome_options = Options()
+    for option in options:
+        chrome_options.add_argument(option)
+
+    # driver = webdriver.Chrome(service=service, options=chrome_options)
+    driver = webdriver.Chrome(
+        service=ChromiumService(
+            ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()
+        ),
+        options=chrome_options,
+    )
+
     return driver
 
 
@@ -225,16 +245,21 @@ def scrape_to_dataframe(
 
     # try 2 times to load page correctly; scrapingant can fail sometimes on it first try
     for i in range(1, 2):
-        driver.get(nba_url)
-        time.sleep(10)
-        source = soup(driver.page_source, "html.parser")
-        print("FIRST ", source)
+        if api_key == "":  # if no api key, then use selenium
+            driver.get(nba_url)
+            time.sleep(10)
+            source = soup(driver.page_source, "html.parser")
+        else:  # if api key, then use scrapingant
+            print("USING SCARAPER API")
+            client = ScrapingAntClient(token=api_key)
+            result = client.general_request(nba_url)
+            source = soup(result.content, "html.parser")
+
         # the data table is the key dynamic element that may fail to load
         CLASS_ID_TABLE = (
             "Crom_table__p1iZz"  # determined by visual inspection of page source code
         )
         data_table = source.find("table", {"class": CLASS_ID_TABLE})
-        print(CLASS_ID_TABLE+" ", data_table)
 
         if data_table is None:
             time.sleep(10)
@@ -249,7 +274,6 @@ def scrape_to_dataframe(
     # check for more than one page
     CLASS_ID_PAGINATION = "Pagination_pageDropdown__KgjBU"  # determined by visual inspection of page source code
     pagination = source.find("div", {"class": CLASS_ID_PAGINATION})
-    print(CLASS_ID_PAGINATION+" ", pagination)
 
     if api_key == "":  # if using selenium, then check for multiple pages
         if pagination is not None:
@@ -263,7 +287,7 @@ def scrape_to_dataframe(
                 + CLASS_ID_DROPDOWN
                 + "']",
             )
-            
+
             page_dropdown.send_keys("ALL")  # show all pages
             # page_dropdown.click() doesn't work in headless mode
             time.sleep(3)
@@ -275,8 +299,6 @@ def scrape_to_dataframe(
             time.sleep(3)
             source = soup(driver.page_source, "html.parser")
             data_table = source.find("table", {"class": CLASS_ID_TABLE})
-
-            print("FOURTH ",source)
 
     # convert the html table to a dataframe
     dfs = pd.read_html(str(data_table), header=0)
@@ -436,7 +458,6 @@ def get_todays_matchups(api_key: str, driver: webdriver):
     todays_games = None
 
     while div_games:
-        print(div_game_day.text)
         game_day = div_game_day.text
         game_day = game_day.split(" ")
         game_day = (" ").join(game_day[:3])
