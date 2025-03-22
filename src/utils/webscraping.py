@@ -8,6 +8,7 @@ from scrapingant_client import ScrapingAntClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 
 from bs4 import BeautifulSoup as soup
 
@@ -38,32 +39,23 @@ def activate_web_driver() -> webdriver:
     """
 
     # options for selenium webdrivers, used to assist headless scraping. Still ran into issues, so I used scrapingant instead when running from github actions
-    options = [
-        "--headless",
-        "--window-size=1920,1200",
-        "--start-maximized",
-        "--no-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--ignore-certificate-errors",
-        "--disable-extensions",
-        "--disable-popup-blocking",
-        "--disable-notifications",
-        "--remote-debugging-port=9222",  # https://stackoverflow.com/questions/56637973/how-to-fix-selenium-devtoolsactiveport-file-doesnt-exist-exception-in-python
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
-        "--disable-blink-features=AutomationControlled",
-    ]
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--disable-extensions')
+    options.add_argument('--start-maximized')
+    # Memory optimization
+    options.add_argument('--disk-cache-size=1')
+    options.add_argument('--media-cache-size=1')
+    options.add_argument('--incognito')
+    options.add_argument('--remote-debugging-port=9222')
+    options.add_argument('--aggressive-cache-discard')
 
-
-    chrome_options = Options()
-    for option in options:
-        chrome_options.add_argument(option)
-    chrome_options.binary_location = "/usr/bin/google-chrome"
-
-    driver = webdriver.Chrome(
-        options=chrome_options,
-    )
-
+    service = Service('/usr/local/bin/chromedriver')
+        
+    driver = webdriver.Chrome(service=service, options=options)
     return driver
 
 
