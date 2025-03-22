@@ -6,16 +6,8 @@ from scrapingant_client import ScrapingAntClient
 
 # if using selenium and chrome, import these
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromiumService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.core.os_manager import ChromeType
-from webdriver_manager.chrome import ChromeDriverManager
-
-# if using selenium and firefox, import these
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from webdriver_manager.firefox import GeckoDriverManager
-
 
 from bs4 import BeautifulSoup as soup
 
@@ -45,7 +37,6 @@ def activate_web_driver() -> webdriver:
         the selected webdriver
     """
 
-    # options for selenium webdrivers, used to assist headless scraping. Still ran into issues, so I used scrapingant instead when running from github actions
     options = [
         "--headless",
         "--window-size=1920,1200",
@@ -62,17 +53,13 @@ def activate_web_driver() -> webdriver:
         "--disable-blink-features=AutomationControlled",
     ]
 
-    # service = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()), options=options)
 
     chrome_options = Options()
     for option in options:
         chrome_options.add_argument(option)
+    chrome_options.binary_location = "/usr/bin/google-chrome"
 
-    # driver = webdriver.Chrome(service=service, options=chrome_options)
     driver = webdriver.Chrome(
-        service=ChromiumService(
-            ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()
-        ),
         options=chrome_options,
     )
 
