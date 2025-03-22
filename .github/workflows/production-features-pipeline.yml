@@ -21,13 +21,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium
-          chmod +x /path/to/chromedriver
-          chmod +x /usr/bin/chromium-browser
           sudo apt-get install -y curl unzip xvfb libxi6 libgconf-2-4 fonts-liberation
           wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo apt install ./google-chrome-stable_current_amd64.deb
-          google-chrome --headless --disable-gpu --screenshot https://www.chromestatus.com/
-          google-chrome --no-sandbox --headless --disable-gpu --screenshot https://www.chromestatus.com/
           
       - name: install python packages
         run: |
