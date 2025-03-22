@@ -39,9 +39,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           python -m pip install jupyter nbconvert nbformat
-      
-      - name: Prepare Selenium
-        uses: nanasess/setup-chromedriver@master
        
       - name: execute python workflows from notebook
         env: 
