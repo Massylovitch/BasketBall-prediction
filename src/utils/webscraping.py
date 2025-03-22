@@ -287,7 +287,7 @@ def scrape_to_dataframe(
             source = soup(driver.page_source, "html.parser")
             data_table = source.find("table", {"class": CLASS_ID_TABLE})
 
-    # print(source)
+    print(source)
 
     # convert the html table to a dataframe
     dfs = pd.read_html(str(data_table), header=0)
