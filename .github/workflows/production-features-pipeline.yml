@@ -11,9 +11,6 @@ jobs:
     steps:
       - name: checkout repo content
         uses: actions/checkout@v2
-      
-      - name: setup chromedriver
-        uses: nanasess/setup-chromedriver@v2
 
       - name: setup python
         uses: actions/setup-python@v2
@@ -25,6 +22,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           python -m pip install jupyter nbconvert nbformat
+      
+      - name: Remove Chrome
+        run: sudo apt purge google-chrome-stable
+      - name: Remove default Chromium
+        run: sudo apt purge chromium-browser
+      - name: Install a new Chromium
+        run: sudo apt install -y chromium-browser
+      - name: Install all necessary packages
+        run: pip install requests beautifulsoup4 pandas webdriver-manager selenium
+      - name: Run the scraping script
+        run: python scraper.py
         
             
       - name: execute python workflows from notebook
